@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBlack">
+
+    <ImageButton
+        android:id="@+id/closeImageButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@color/colorBlack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/settingsImgBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="end"
+        android:background="@drawable/settings_btn"
+        app:layout_constraintBottom_toBottomOf="@+id/closeImageButton"
+        app:layout_constraintEnd_toEndOf="@+id/closeImageButton"
+        app:layout_constraintStart_toStartOf="@+id/closeImageButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/statusLabelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status_label_text_view_main"
+        android:layout_marginStart="@dimen/horizontal_padding_big_main"
+        android:layout_marginLeft="@dimen/horizontal_padding_big_main"
+        android:layout_marginTop="20dp"
+        android:textSize="15sp"
+        android:textColor="@color/colorGreen"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logoImageView" />
+
+    <TextView
+        android:id="@+id/yourIpLabelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/your_ip_label_text_view_main"
+        android:layout_marginEnd="@dimen/horizontal_padding_big_main"
+        android:layout_marginRight="@dimen/horizontal_padding_big_main"
+        android:layout_marginTop="20dp"
+        android:textSize="15sp"
+        android:textColor="@color/colorGreen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logoImageView" />
+
+    <TextView
+        android:id="@+id/statusValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status_disconected_value_text_view_main_default"
+        android:layout_marginStart="@dimen/horizontal_padding_small_main"
+        android:layout_marginLeft="@dimen/horizontal_padding_small_main"
+        android:layout_marginTop="15dp"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:textColor="@color/colorGreen"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/statusLabelTextView" />
+
+    <TextView
+        android:id="@+id/connectionTimeLabelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connection_time_label_text_view"
+        android:textSize="15sp"
+        android:textColor="@color/colorGreen"
+        android:layout_marginTop="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yourIpValueTextView" />
+
+    <TextView
+        android:id="@+id/connectionTimeIdleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connection_time_idle_value_text_view"
+        android:textSize="15sp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:textColor="@color/colorGreen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/connectionTimeLabelTextView" />
+
+    <TextView
+        android:id="@+id/connectionTimeValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:textSize="15sp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:textColor="@color/colorGreen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/connectionTimeLabelTextView" />
+
+    <TextView
+        android:id="@+id/yourIpValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/your_ip_value_text_view_main"
+        android:layout_marginEnd="@dimen/horizontal_padding_small_main"
+        android:layout_marginRight="@dimen/horizontal_padding_small_main"
+        android:layout_marginTop="15dp"
+        android:textSize="15sp"
+        android:textColor="@color/colorGreen"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yourIpLabelTextView" />
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_gravity="end"
+        android:layout_margin="10dp"
+        android:background="@drawable/logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/shieldConnectedImageView"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginVertical="80dp"
+        android:background="@drawable/shield_notconnected"
+        app:layout_constraintBottom_toTopOf="@+id/btnConnectDisconnect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageView
+        android:id="@+id/shieldNotConnectedImageView"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_marginVertical="80dp"
+        android:visibility="invisible"
+        android:background="@drawable/shield_connected"
+        app:layout_constraintBottom_toTopOf="@+id/btnConnectDisconnect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <Button
+        android:id="@+id/btnConnectDisconnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/round_corners_black_button"
+        android:textColor="@color/colorBlack"
+        android:layout_centerInParent="true"
+        android:text="Connect"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

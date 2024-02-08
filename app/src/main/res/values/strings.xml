@@ -1,0 +1,29 @@
+<resources>
+    /  Activity Main
+    <string name="app_name">Free VPN</string>
+    <string name="connect">Connect</string>
+    <string name="connecting">Connecting</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connection_close_confirm">Would you like to cancel the current VPN Connection?</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="status_label_text_view_main">Status</string>
+    <string name="status_disconected_value_text_view_main_default">Not connected</string>
+    <string name="status_connecting_value_text_view_main_default">"Connecting..."</string>
+    <string name="status_connected_value_text_view_main">Connected</string>
+    <string name="status_waiting_connection_value_text_view_main">Waiting connection!</string>
+    <string name="status_authenticating_value_text_view_main">Authenticating!</string>
+    <string name="status_reconnecting_value_text_view_main">Reconnecting…</string>
+    <string name="status_no_network_value_text_view_main">No network!</string>
+    <string name="your_ip_label_text_view_main">Your IP</string>
+    <string name="your_ip_value_text_view_main">Loading…</string>
+    <string name="connection_time_label_text_view">Connection time</string>
+    <string name="connection_time_idle_value_text_view">Idle</string>
+    //  Activity Settings
+    <string name="title_text_view_settings">Fill in your credentials</string>
+    <string name="username_text_view_settings">Username:</string>
+    <string name="hint_username_edit_text_settings">Please fill your username</string>
+    <string name="password_text_view_settings">Password:</string>
+    <string name="hint_password_edit_text_settings">Please fill your password</string>
+    <string name="save_account_button_settings">Save Account</string>
+</resources>
