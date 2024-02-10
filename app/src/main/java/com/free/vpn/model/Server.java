@@ -2,11 +2,15 @@ package com.free.vpn.model;
 
 public class Server {
     private String country;
+    //    private String flagUrl;
     private String ovpn;
     private String ovpnUserName;
     private String ovpnUserPassword;
 
-    public Server() {
+    private Boolean isServerRunning;
+
+
+    public Server(String main, String s, String valueOf, String of, boolean b) {
     }
 
     public Server(String country, String flagUrl, String ovpn) {
@@ -51,5 +55,13 @@ public class Server {
 
     public void setOvpnUserPassword(String ovpnUserPassword) {
         this.ovpnUserPassword = ovpnUserPassword;
+    }
+
+    public Boolean getIsServerRunning() {
+        return isServerRunning;
+    }
+
+    public void setIsServerRunning(Boolean isServerRunning) {
+        this.isServerRunning = isServerRunning;
     }
 }

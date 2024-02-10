@@ -27,10 +27,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     Server server;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        Utils utils = new Utils();
-        utils.taskBarChangeColor(this.getWindow(), this.getResources().getColor(R.color.colorBlack));
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 

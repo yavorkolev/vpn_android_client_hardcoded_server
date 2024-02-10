@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,17 +60,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String mIp = null;
     private long startTime = 0L;
     private Handler customHandlerTimer = new Handler();
-    long timeInMillisecondsTimer = 0L;
-    boolean isRunningTimer = false;
+    volatile static long timeInMillisecondsTimer = 0L;
+    volatile static long offline = 0L;
 
     private Handler customHandlerNetworkChecker = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        Utils utils = new Utils();
-        utils.taskBarChangeColor(this.getWindow(), this.getResources().getColor(R.color.colorBlack));
-
         preference = new SharedPreference(this);
         server = preference.getServer();
         if("".equals(server.getOvpnUserName()) || "".equals(server.getOvpnUserPassword())){
@@ -81,21 +79,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setContentView(binding.getRoot());
             binding.settingsImgBtn.setOnClickListener(this);
             binding.btnConnectDisconnect.setOnClickListener(this);
-            getIp();
+            if(isConnected()){
+                getIp();
+            }
         }
     }
 
-    private Runnable updateNetworkCheckerThread = new Runnable() {
-        public void run() {
-            getIp();
-            customHandlerNetworkChecker.postDelayed(this, 5000);
+    private final Runnable updateNetworkCheckerThread = new Runnable() {
+        public synchronized void run() {
+            if(isConnected()){
+                getIp();
+                if(preference.getIsServerRunning() && preference.getIsServerLosingNetworkOnRunning()){
+                    preference.setIsServerLosingNetworkOnRunning(false);
+                    offline = ((SystemClock.uptimeMillis())-(preference.getServerRunningNoNetworkTimeInMilliseconds()));
+                    customHandlerTimer.postDelayed(updateTimerThread, 0);
+                } else if(preference.getIsServerRunning()){
+                    binding.statusValueTextView.setText(R.string.status_connected_value_text_view_main);
+                }
+            } else if(preference.getIsServerRunning() && !preference.getIsServerLosingNetworkOnRunning()){
+                preference.setIsServerLosingNetworkOnRunning(true);
+                preference.setServerRunningNoNetworkTimeInMilliseconds(SystemClock.uptimeMillis());
+                customHandlerTimer.removeCallbacks(updateTimerThread);
+            } else {
+                binding.yourIpValueTextView.setText(R.string.status_no_network_value_text_view_main);
+                binding.statusValueTextView.setText(R.string.status_no_network_value_text_view_main);
+            }
+            customHandlerNetworkChecker.postDelayed(this, 1000);
         }
     };
 
-    private Runnable updateTimerThread = new Runnable() {
-        public void run() {
-            isRunningTimer = true;
-            timeInMillisecondsTimer = SystemClock.uptimeMillis() - startTime;
+    private final Runnable updateTimerThread = new Runnable() {
+        public synchronized void run() {
+            timeInMillisecondsTimer = (SystemClock.uptimeMillis() - startTime -offline);
             int seconds = (int) (timeInMillisecondsTimer / 1000) % 60 ;
             int minutes = (int) ((timeInMillisecondsTimer / (1000*60)) % 60);
             int hours   = (int) ((timeInMillisecondsTimer / (1000*60*60)) % 24);
@@ -105,7 +120,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
 
-    private  void getIp(){
+    private  boolean isConnected(){
+        ConnectivityManager conManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] networkInfo = conManager.getAllNetworkInfo();
+        for (NetworkInfo netInfo : networkInfo) {
+            if (netInfo.getTypeName().equalsIgnoreCase("WIFI")) {
+                if (netInfo.isConnected()) {
+                    return true;
+                }
+            } else if (netInfo.getTypeName().equalsIgnoreCase("MOBILE")) {
+                if (netInfo.isConnected()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void getIp(){
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -123,13 +155,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
             handler.post(() -> {
-                applyPublicIpInView(mIp);
+                applyIpInView(mIp);
             });
-
         });
     }
 
-    private void applyPublicIpInView(String ip){
+    private void applyIpInView(String ip){
+
         if(ip != null){
             binding.yourIpValueTextView.setText(ip);
         } else {
@@ -147,7 +179,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onResume(){
         super.onResume();
-        getIp();
+        if(isConnected()){
+            getIp();
+        }
         // Checking is vpn already running or not
         isServiceRunning();
         VpnStatus.initLogCache(this.getCacheDir());
@@ -178,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //    Show show disconnect confirm dialog
     public void confirmDisconnect(){
+        offline = 0L;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(this.getString(R.string.connection_close_confirm));
 
@@ -225,7 +260,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             vpnThread.stop();
             status("connect");
             vpnStart = false;
-            getIp();
+            if(isConnected()){
+                getIp();
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -269,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             br.readLine();
             OpenVpnApi.startVpn(this, config, server.getCountry(), server.getOvpnUserName(), server.getOvpnUserPassword());
-            // Update status
-            binding.statusValueTextView.setText(R.string.status_disconected_value_text_view_main_default);
+            // Update log
+            binding.statusValueTextView.setText("Connecting...");
             vpnStart = true;
         } catch (IOException | RemoteException e) {
             e.printStackTrace();
@@ -281,26 +318,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void setStatus(String connectionState) {
         if (connectionState!= null){
             switch (connectionState) {
-                case "DISCONNECTED":
-                    customHandlerNetworkChecker.postDelayed(updateNetworkCheckerThread, 0);
+                case "DISCONNECTED": ;
                     status("connect");
                     vpnStart = false;
                     vpnService.setDefaultStatus();
                     binding.statusValueTextView.setText(R.string.status_disconected_value_text_view_main_default);
-                    isRunningTimer = false;
+                    preference.setIsServerRunning(false);
+                    customHandlerTimer.removeCallbacks(updateTimerThread);
                     binding.shieldNotConnectedImageView.setVisibility(View.INVISIBLE);
                     binding.shieldConnectedImageView.setVisibility(View.VISIBLE);
                     break;
                 case "CONNECTED":
-                    customHandlerNetworkChecker.removeCallbacks(updateNetworkCheckerThread);
                     vpnStart = true;// it will use after restart this activity
                     status("connected");
                     binding.statusValueTextView.setText(R.string.status_connected_value_text_view_main);
                     binding.shieldConnectedImageView.setVisibility(View.INVISIBLE);
                     binding.shieldNotConnectedImageView.setVisibility(View.VISIBLE);
-                    binding.connectionTimeValueTextView.setVisibility(View.VISIBLE);
-                    if(!isRunningTimer){
+                    if(!preference.getIsServerRunning()){
+                        // If Server is not running start timer with current timer from zero
+                        preference.setIsServerRunning(true);
                         startTime = SystemClock.uptimeMillis();
+                        customHandlerTimer.postDelayed(updateTimerThread, 0);
+                    } else {
+                        // If Server is running get running time from shared preferences
+                        // and start timer with data from shared preferences
+                        startTime = preference.getServerStartTimeRunning();
+                        timeInMillisecondsTimer  = preference.getServerRunningTimeInMilliseconds();
                         customHandlerTimer.postDelayed(updateTimerThread, 0);
                     }
                     break;
@@ -315,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     binding.statusValueTextView.setText(R.string.status_reconnecting_value_text_view_main);
                     break;
                 case "NONETWORK":
-                    applyPublicIpInView(null);
+                    applyIpInView(null);
                     binding.statusValueTextView.setText(R.string.status_no_network_value_text_view_main);
                     break;
             }
@@ -346,10 +389,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // while ip is different from the server ip invoke getIp
-            if(!binding.yourIpValueTextView.getText().equals("YOUR SERVER IP")) {
-                getIp();
-            }
             try {
                 setStatus(intent.getStringExtra("state"));
             } catch (Exception e) {
@@ -393,6 +432,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (server != null) {
             preference.saveServer(server);
         }
+        // If Server is running save running time in shared preferences and stop timer
+        if(preference.getIsServerRunning()){
+            preference.setServerStartTimeRunning(startTime);
+            preference.setServerRunningTimeInMilliseconds(timeInMillisecondsTimer);
+            customHandlerTimer.removeCallbacks(updateTimerThread);
+        }
+
         super.onStop();
     }
 }
