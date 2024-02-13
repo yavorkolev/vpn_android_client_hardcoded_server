@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Utils utils = new Utils();
+        utils.taskBarChangeColor(this.getWindow(), this.getResources().getColor(R.color.colorBlack));
         preference = new SharedPreference(this);
         server = preference.getServer();
         if("".equals(server.getOvpnUserName()) || "".equals(server.getOvpnUserPassword())){
